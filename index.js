@@ -2,6 +2,7 @@ import decode from 'jwt-decode';
 import axios from 'axios';
 import qs from 'qs';
 
+// todo this entire module should be wrapped more neatly...
 // todo inject, config, something...
 //export const LOGIN_URL = 'https://authentication.flexinets.se/token';
 //export const LOGOUT_URL = 'https://authentication.flexinets.se/logout';
@@ -17,6 +18,9 @@ const TOKEN_KEY = 'react_token';
 let token = null;
 let currentUser = null;
 let refreshPromise = null;
+
+axios.defaults.validateStatus = (status) => { return status >= 200 && status < 500; };
+axios.interceptors.request.use(async config => authInterceptor(config));
 
 
 export async function login(username, password) {
@@ -114,7 +118,7 @@ export async function getRefreshedAccessToken() {
         if (isTokenExpired(token.access_token)) {
             console.debug('Token has expired, start refresh maybe');
             const result = await refreshToken();
-            console.debug('token refresh result ' + result);
+            console.debug(`token refresh result ${result}`);
         }
         return getToken().access_token;    // test stuff
     }
@@ -148,6 +152,7 @@ function setToken(tokenJson) {
  */
 function getToken() {
     if (token === null) {
+        console.debug('getting token from localstorage');
         token = JSON.parse(localStorage.getItem(TOKEN_KEY));
     }
     return token;
@@ -169,13 +174,13 @@ async function refreshToken() {
         method: 'post',
         url: LOGIN_URL,
         data: qs.stringify({ 'grant_type': 'refresh_token' }),
-        config: { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+        config: { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }        
     }).then(response => {
         refreshPromise = null;
         console.debug('Refreshed access token');
         setToken(response.data);
         return true;
-    }).catch(function (error) {
+    }).catch(error => {
         refreshPromise = null;
         console.debug(error);
         if (error.response.data.error === 'invalid_grant') {
