@@ -163,32 +163,30 @@ function getToken() {
  * Refresh access token
  */
 async function refreshToken() {
-    if (refreshPromise !== null) {
-        console.debug('Pending token refresh, reusing promise');
-        return refreshPromise;
+    console.debug('Refreshing access token');
+
+    if (refreshPromise === null) {
+        console.debug('No pending access token refresh, starting new');
+        refreshPromise = axios({
+            method: 'post',
+            url: LOGIN_URL,
+            data: qs.stringify({ 'grant_type': 'refresh_token' }),
+            config: { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+        }).then(response => {
+            refreshPromise = null;
+            console.debug('Refreshed access token');
+            setToken(response.data);
+            return true;
+        }).catch(error => {
+            refreshPromise = null;
+            console.debug(error);
+            if (error.response.data.error === 'invalid_grant') {
+                console.debug('Refresh token expired');
+                clearTokenContext();
+                return false;
+            }
+        });
     }
-
-    console.debug('Starting new token refresh');
-
-    refreshPromise = axios({
-        method: 'post',
-        url: LOGIN_URL,
-        data: qs.stringify({ 'grant_type': 'refresh_token' }),
-        config: { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }        
-    }).then(response => {
-        refreshPromise = null;
-        console.debug('Refreshed access token');
-        setToken(response.data);
-        return true;
-    }).catch(error => {
-        refreshPromise = null;
-        console.debug(error);
-        if (error.response.data.error === 'invalid_grant') {
-            console.debug('Refresh token expired');
-            clearTokenContext();
-            return false;
-        }
-    });
 
     return refreshPromise;
 }
