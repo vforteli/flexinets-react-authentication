@@ -57,10 +57,9 @@ export async function beginReset(email) {
 
 
 export async function authInterceptor(config) {
-    // With credentials must be enabled for requests to login and logout url, because the refresh token is stored as a http only cookie
+    // With credentials must be enabled for requests to login and logout url, because the refresh token is stored as an http only cookie
     if (config.url.indexOf(LOGIN_URL) >= 0 || config.url.indexOf(LOGOUT_URL) >= 0) {
-        config.withCredentials = true;
-        return config;
+        config.withCredentials = true;        
     }
     else {
         const accessToken = await getRefreshedAccessToken();
