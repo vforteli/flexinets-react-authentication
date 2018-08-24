@@ -12,7 +12,7 @@ export const LOGIN_URL = 'http://localhost:65138/token';
 export const LOGOUT_URL = 'http://localhost:65138/logout';
 export const ACCOUNT_URL = 'http://localhost:65138/api/account/';
 export const AUTH_BASE_URL = 'http://localhost:65138';
-const TOKEN_KEY = 'react_token';
+const STORAGE_KEY = 'react_token';
 
 
 let token = null;
@@ -43,23 +43,32 @@ export async function login(username, password) {
 }
 
 
-export async function beginReset(email) {
+/**
+ * Begin password reset for email
+ * @param {string} email 
+ * @param {string} returnUrl 
+ */
+export async function beginReset(email, returnUrl) {
     const response = await axios({
         method: 'post',
         url: ACCOUNT_URL + 'resetpassword/beginreset/',
         data: {
             EmailAddress: email,
-            ReturnUrl: 'https://wifi.flexinets.se/reset/'
+            ReturnUrl: returnUrl
         }
     });
     return response;
 }
 
 
+/**
+ * Authinterceptor for axios
+ * @param {*} config 
+ */
 export async function authInterceptor(config) {
     // With credentials must be enabled for requests to login and logout url, because the refresh token is stored as an http only cookie
     if (config.url.indexOf(LOGIN_URL) >= 0 || config.url.indexOf(LOGOUT_URL) >= 0) {
-        config.withCredentials = true;        
+        config.withCredentials = true;
     }
     else {
         const accessToken = await getRefreshedAccessToken();
@@ -111,6 +120,10 @@ export function getCurrentUser() {
     return currentUser;
 }
 
+
+/**
+ * Get an access token which has been refreshed if expired
+ */
 export async function getRefreshedAccessToken() {
     const token = getToken();
     if (token !== null) {
@@ -138,11 +151,11 @@ export async function checkEmailAvailability(email) {
 
 /**
  * Save the token to localStorage
- * @param {string} tokenJson
+ * @param {string} jwtTokenJson
  */
-function setToken(tokenJson) {
-    localStorage.setItem(TOKEN_KEY, JSON.stringify(tokenJson));
-    token = tokenJson;
+function setToken(jwtTokenJson) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(jwtTokenJson));
+    token = jwtTokenJson;
 }
 
 
@@ -152,7 +165,7 @@ function setToken(tokenJson) {
 function getToken() {
     if (token === null) {
         console.debug('getting token from localstorage');
-        token = JSON.parse(localStorage.getItem(TOKEN_KEY));
+        token = JSON.parse(localStorage.getItem(STORAGE_KEY));
     }
     return token;
 }
@@ -172,19 +185,17 @@ async function refreshToken() {
             data: qs.stringify({ 'grant_type': 'refresh_token' }),
             config: { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         }).then(response => {
-            refreshPromise = null;
             console.debug('Refreshed access token');
             setToken(response.data);
             return true;
         }).catch(error => {
-            refreshPromise = null;
             console.debug(error);
             if (error.response.data.error === 'invalid_grant') {
-                console.debug('Refresh token expired');
+                console.debug('Refresh token expired or invalidated');
                 clearTokenContext();
                 return false;
             }
-        });
+        }).finally(() => refreshPromise = null);
     }
 
     return refreshPromise;
@@ -196,7 +207,7 @@ async function refreshToken() {
 */
 function clearTokenContext() {
     console.debug('clearing token context');
-    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(STORAGE_KEY);
     token = null;
     currentUser = null;
 }
