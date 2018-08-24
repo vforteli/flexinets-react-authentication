@@ -4,15 +4,15 @@ import qs from 'qs';
 
 // todo this entire module should be wrapped more neatly...
 // todo inject, config, something...
-//export const LOGIN_URL = 'https://authentication.flexinets.se/token';
-//export const LOGOUT_URL = 'https://authentication.flexinets.se/logout';
-//const ACCOUNT_URL = 'https://authentication.flexinets.se/api/account/';
+// todo add some tests, although most tests would have to be integration tests...
+// todo clear up names, access token/jwt token/refresh token
 //export const AUTH_BASE_URL = 'https://authentication.flexinets.se';
-export const LOGIN_URL = 'http://localhost:65138/token';
-export const LOGOUT_URL = 'http://localhost:65138/logout';
-export const ACCOUNT_URL = 'http://localhost:65138/api/account/';
-export const AUTH_BASE_URL = 'http://localhost:65138';
+const AUTH_BASE_URL = 'http://localhost:65138';
 const STORAGE_KEY = 'react_token';
+const LOGIN_URL = `${AUTH_BASE_URL}/token`;
+const LOGOUT_URL = `${AUTH_BASE_URL}/logout`;
+export const ACCOUNT_URL = `${AUTH_BASE_URL}/api/account/`;
+
 
 
 let token = null;
@@ -37,7 +37,7 @@ export async function login(username, password) {
         config: { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     });
     if (response.status === 200) {
-        setToken(response.data);
+        setJwtToken(response.data);
     }
     return response;
 }
@@ -92,14 +92,14 @@ export async function logout() {
  * Assumed to be logged in if a token exists, and the refresh token has not expired
  */
 export function isLoggedIn() {
-    const token = getToken();
+    const token = getJwtToken();
     return token !== null && token.refresh_token_expires > new Date().getTime() / 1000;
 }
 
 
 export function getCurrentUser() {
     if (currentUser === null) {
-        const token = getToken();
+        const token = getJwtToken();
         if (token !== null) {
             try {
                 const claims = decode(token.access_token);
@@ -125,14 +125,14 @@ export function getCurrentUser() {
  * Get an access token which has been refreshed if expired
  */
 export async function getRefreshedAccessToken() {
-    const token = getToken();
+    const token = getJwtToken();
     if (token !== null) {
-        if (isTokenExpired(token.access_token)) {
+        if (isJwtTokenExpired(token.access_token)) {
             console.debug('Token has expired, start refresh maybe');
-            const result = await refreshToken();
+            const result = await refreshAccessToken();
             console.debug(`token refresh result ${result}`);
         }
-        return getToken().access_token;    // test stuff
+        return getJwtToken().access_token;    // test stuff
     }
     return null;
 }
@@ -153,7 +153,7 @@ export async function checkEmailAvailability(email) {
  * Save the token to localStorage
  * @param {string} jwtTokenJson
  */
-function setToken(jwtTokenJson) {
+function setJwtToken(jwtTokenJson) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(jwtTokenJson));
     token = jwtTokenJson;
 }
@@ -162,7 +162,7 @@ function setToken(jwtTokenJson) {
 /**
  * Get the token from localStorage or variable if available
  */
-function getToken() {
+function getJwtToken() {
     if (token === null) {
         console.debug('getting token from localstorage');
         token = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -174,7 +174,7 @@ function getToken() {
 /**
  * Refresh access token
  */
-async function refreshToken() {
+async function refreshAccessToken() {
     console.debug('Refreshing access token');
 
     if (refreshPromise === null) {
@@ -186,7 +186,7 @@ async function refreshToken() {
             config: { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         }).then(response => {
             console.debug('Refreshed access token');
-            setToken(response.data);
+            setJwtToken(response.data);
             return true;
         }).catch(error => {
             console.debug(error);
@@ -217,7 +217,7 @@ function clearTokenContext() {
  * Check if an access token has expired
  * @param {string} jwtToken
  */
-function isTokenExpired(jwtToken) {
+function isJwtTokenExpired(jwtToken) {
     const token = decode(jwtToken);
     if (!token.exp) { return null; }
 
