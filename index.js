@@ -46,12 +46,12 @@ export async function login(username, password) {
 /**
  * Begin password reset for email
  * @param {string} email 
- * @param {string} returnUrl 
+ * @param {string} returnUrl Domain part of return url
  */
 export async function beginReset(email, returnUrl) {
     const response = await axios({
         method: 'post',
-        url: ACCOUNT_URL + 'resetpassword/beginreset/',
+        url: ACCOUNT_URL + '/resetpassword/beginreset/',
         data: {
             EmailAddress: email,
             ReturnUrl: returnUrl
