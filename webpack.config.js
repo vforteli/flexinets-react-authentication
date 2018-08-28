@@ -2,7 +2,7 @@ var path = require('path');
 
 module.exports = {
     mode: 'production',
-    entry: ['./index.js'],
+    entry: ['regenerator-runtime/runtime', './index.js'],
     output: {
         path: path.resolve('lib'),
         filename: 'flexinets-react-authentication.js',

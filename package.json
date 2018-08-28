@@ -15,15 +15,15 @@
     "axios": "^0.18.0"
   },
   "devDependencies": {
-    "jwt-decode": "^2.2.0",
-    "qs": "^6.5.2",
     "axios": "^0.18.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-0": "^6.24.1",
+    "jwt-decode": "^2.2.0",
     "path": "^0.12.7",
     "prop-types": "^15.6.2",
+    "qs": "^6.5.2",
+    "regenerator-runtime": "^0.12.1",
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0"
   }
