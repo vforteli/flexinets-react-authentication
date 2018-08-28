@@ -2,7 +2,7 @@
   "name": "flexinets-react-authentication",
   "version": "1.0.0",
   "description": "JWT token based authentication with refresh token cookies",
-  "main": "index.js",
+  "main": "./lib/flexinets-react-authentication.js",
   "scripts": {
     "start": "webpack --watch",
     "build": "webpack"
