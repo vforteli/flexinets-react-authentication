@@ -70,7 +70,7 @@ export async function beginReset(email, returnUrl) {
 export async function completeReset(password, passwordConfirm, resetId) {
     return await axios({
         method: 'post',
-        url: ACCOUNT_URL + '/resetpassword/completereset/',
+        url: ACCOUNT_URL + 'resetpassword/completereset/',
         data: {
             password: password,
             passwordConfirm: passwordConfirm,
