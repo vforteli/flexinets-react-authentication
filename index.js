@@ -81,6 +81,15 @@ export async function completeReset(password, passwordConfirm, resetId) {
 
 
 /**
+ * Validate a reset token
+ * @param {string} resetId 
+ */
+export async function validateResetToken(resetId) {
+    return await axios.get(`${ACCOUNT_URL}resetpassword/validateresettoken/${resetId}`);
+}
+
+
+/**
  * Authinterceptor for axios
  * @param {*} config 
  */
