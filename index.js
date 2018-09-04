@@ -62,6 +62,25 @@ export async function beginReset(email, returnUrl) {
 
 
 /**
+ * Complete a password reset request
+ * @param {string} password 
+ * @param {string} passwordConfirm 
+ * @param {string} resetId 
+ */
+export async function completeReset(password, passwordConfirm, resetId) {
+    return await axios({
+        method: 'post',
+        url: ACCOUNT_URL + '/resetpassword/completereset/',
+        data: {
+            password: password,
+            passwordConfirm: passwordConfirm,
+            resetId: resetId
+        }
+    });
+}
+
+
+/**
  * Authinterceptor for axios
  * @param {*} config 
  */
