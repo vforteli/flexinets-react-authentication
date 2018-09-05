@@ -7,7 +7,8 @@ import qs from 'qs';
 // todo add some tests, although most tests would have to be integration tests...
 // todo clear up names, access token/jwt token/refresh token
 //export const AUTH_BASE_URL = 'https://authentication.flexinets.se';
-const AUTH_BASE_URL = 'http://localhost:65138';
+const AUTH_BASE_URL = 'http://localhost:65138';     // todo this should be configurable
+
 const STORAGE_KEY = 'react_token';
 const LOGIN_URL = `${AUTH_BASE_URL}/token`;
 const LOGOUT_URL = `${AUTH_BASE_URL}/logout`;
