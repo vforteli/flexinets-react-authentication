@@ -2,7 +2,7 @@ import decode from 'jwt-decode';
 import axios from 'axios';
 import qs from 'qs';
 
-//let AUTH_BASE_URL = 'http://localhosdt:65138';     // todo this should be configurable
+
 let AUTH_BASE_URL = 'https://authentication.flexinets.se';
 const STORAGE_KEY = 'react_token';
 
@@ -209,16 +209,17 @@ export default class AuthenticationService {
                 data: qs.stringify({ 'grant_type': 'refresh_token' }),
                 config: { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
             }).then(response => {
-                console.debug('Refreshed access token');
-                this.setJwtToken(response.data);
-                return true;
+                if (response.status === 200) {
+                    console.debug('Refreshed access token');
+                    this.setJwtToken(response.data);
+                    return true;
+                }
+                this.clearTokenContext();
+                return false;
             }).catch(error => {
                 console.debug(error);
-                if (error.response.data.error === 'invalid_grant') {
-                    console.debug('Refresh token expired or invalidated');
-                    this.clearTokenContext();
-                    return false;
-                }
+                this.clearTokenContext();
+                return false;
             }).finally(() => refreshPromise = null);
         }
 
