@@ -92,6 +92,7 @@ export default class AuthenticationService {
     static async  authInterceptor(config) {
         // With credentials must be enabled for requests to login and logout url, because the refresh token is stored as an http only cookie
         if (config.url.indexOf(this.getLoginUrl()) >= 0 || config.url.indexOf(this.getLogoutUrl()) >= 0) {
+            console.debug('withCredentials enabled for request');
             config.withCredentials = true;
         }
         else {
