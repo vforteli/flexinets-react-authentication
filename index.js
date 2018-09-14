@@ -150,13 +150,19 @@ export default class AuthenticationService {
      */
     static async getRefreshedAccessToken() {
         const token = this.getJwtToken();
-        if (token !== null) {
-            if (this.isJwtTokenExpired(token.access_token)) {
-                console.debug('Token has expired, start refresh maybe');
-                const result = await this.refreshAccessToken();
-                console.debug(`token refresh result ${result}`);
+        try {
+            if (token !== null) {
+                if (this.isJwtTokenExpired(token.access_token)) {
+                    console.debug('Token has expired, start refresh maybe');
+                    const result = await this.refreshAccessToken();
+                    console.debug(`token refresh result ${result}`);
+                }
+                return this.getJwtToken().access_token;
             }
-            return this.getJwtToken().access_token;    // test stuff
+        }
+        catch (error) {
+            console.debug(error);
+            this.clearTokenContext();
         }
         return null;
     }
