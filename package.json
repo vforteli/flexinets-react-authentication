@@ -1,6 +1,6 @@
 {
   "name": "flexinets-react-authentication",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "JWT token based authentication with refresh token cookies",
   "main": "./lib/flexinets-react-authentication.js",
   "scripts": {
@@ -19,12 +19,13 @@
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.7.0",
+    "eslint-config-defaults": "^9.0.0",
     "jwt-decode": "^2.2.0",
     "path": "^0.12.7",
     "prop-types": "^15.6.2",
     "qs": "^6.5.2",
     "regenerator-runtime": "^0.12.1",
-    "webpack": "^4.16.5",
+    "webpack": "^4.19.0",
     "webpack-cli": "^3.1.0"
   }
 }

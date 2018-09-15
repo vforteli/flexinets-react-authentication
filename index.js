@@ -41,7 +41,7 @@ export default class AuthenticationService {
 
     /**
      * Begin password reset for email
-     * @param {string} email 
+     * @param {string} email Email address
      * @param {string} returnUrl Domain part of return url
      */
     static async beginReset(email, returnUrl) {
@@ -59,9 +59,9 @@ export default class AuthenticationService {
 
     /**
      * Complete a password reset request
-     * @param {string} password 
-     * @param {string} passwordConfirm 
-     * @param {string} resetId 
+     * @param {string} password New password
+     * @param {string} passwordConfirm Confirm new password
+     * @param {string} resetId  resetId
      */
     static async completeReset(password, passwordConfirm, resetId) {
         return await axios({
@@ -78,7 +78,7 @@ export default class AuthenticationService {
 
     /**
      * Validate a reset token
-     * @param {string} resetId 
+     * @param {string} resetId Reset id to validate
      */
     static async validateResetToken(resetId) {
         return await axios.get(`${this.getAccountUrl()}resetpassword/validateresettoken/${resetId}`);
@@ -87,7 +87,7 @@ export default class AuthenticationService {
 
     /**
      * Authinterceptor for axios
-     * @param {*} config 
+     * @param {*} config axios config
      */
     static async  authInterceptor(config) {
         // With credentials must be enabled for requests to login and logout url, because the refresh token is stored as an http only cookie
@@ -115,6 +115,7 @@ export default class AuthenticationService {
     /**
      * Check if a user is logged in.
      * Assumed to be logged in if a token exists, and the refresh token has not expired
+     * @returns {boolean} True if use is logged in
      */
     static isLoggedIn() {
         const token = this.getJwtToken();
@@ -122,6 +123,10 @@ export default class AuthenticationService {
     }
 
 
+    /**
+     * Get the currently logged in user from somewhere
+     * @returns {object} Returns the logged in user
+     */
     static getCurrentUser() {
         if (currentUser === null) {
             const token = this.getJwtToken();
@@ -171,7 +176,7 @@ export default class AuthenticationService {
 
     /**
      * Check if an email address is available for an admin account
-     * @param {any} email 
+     * @param {string} email Email address
      */
     static async checkEmailAvailability(email) {
         const response = await axios.get(`${AUTH_BASE_URL}/api/checkemailavailability?email=${email}`);
@@ -182,7 +187,7 @@ export default class AuthenticationService {
 
     /**
      * Save the token to localStorage
-     * @param {string} jwtTokenJson
+     * @param {JSON} jwtTokenJson JWT token
      */
     static setJwtToken(jwtTokenJson) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(jwtTokenJson));
@@ -192,6 +197,7 @@ export default class AuthenticationService {
 
     /**
      * Get the token from localStorage or variable if available
+     * @returns {JSON} JWT token
      */
     static getJwtToken() {
         if (token === null) {
@@ -247,7 +253,8 @@ export default class AuthenticationService {
 
     /**
      * Check if an access token has expired
-     * @param {string} jwtToken
+     * @param {string} jwtToken JWT token 
+     * @returns {boolean} True if access token has not expired
      */
     static isJwtTokenExpired(jwtToken) {
         const token = decode(jwtToken);
