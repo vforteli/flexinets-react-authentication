@@ -2,7 +2,7 @@ var path = require('path');
 
 module.exports = {
     mode: 'production',
-    entry: ['regenerator-runtime/runtime', './index.js'],
+    entry: ['./index.js'],
     output: {
         path: path.resolve('lib'),
         filename: 'flexinets-react-authentication.js',
@@ -22,4 +22,4 @@ module.exports = {
         'jwt-decode': 'jwt-decode',
         'qs': 'qs'
     }
-}
+};
